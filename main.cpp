@@ -4,13 +4,13 @@
 #include <vector>
 #include <algorithm>
 
-char alphabet[] = {'A', 'B', 'C', 'D',
-                   'E', 'F', 'G', 'H',
-                   'I', 'J', 'K', 'L',
-                   'M', 'N', 'O', 'P',
-                   'Q', 'R', 'S', 'T',
-                   'U', 'V', 'W', 'X',
-                   'Y', 'Z'};
+char alphabet[] = {'a', 'b', 'c', 'd',
+                   'e', 'f', 'g', 'e',
+                   'i', 'j', 'k', 'l',
+                   'm', 'n', 'o', 'p',
+                   'q', 'r', 's', 't',
+                   'u', 'v', 'w', 'x',
+                   'y', 'z'};
 
 int vocals[] = {0, 4, 8, 14, 20};
 
@@ -56,6 +56,9 @@ void printIntro(std::vector<char> letters)
 
     print_chars(letters);
 
+    std::cout << "The first letter must always be on the word, " << std::endl;
+    std::cout << "write -exit to exit or -giveup for the awnsers." << std::endl;
+
     std::cout << "Good luck!!!" << std::endl;
 }
 
@@ -86,7 +89,7 @@ bool letters_allowed(std::string input, std::vector<char> letters)
         if (!inList(letters, static_cast<char>(input[i])))
             return false;
     }
-    return true;
+    return input.find(letters[0]) != std::string::npos;
 }
 
 std::vector<std::string> possible_results(std::vector<std::string> words, std::vector<char> letters) {
@@ -150,6 +153,8 @@ int main ()
                 std::cout << w << std::endl;
         }
         std::cout << "Words left: " << results.size()-found_words.size() << std::endl;
+        std::cout << "Your letters: " << std::endl;
+        print_chars(letters);
     }
 
     std::cout << "Thanks for playing, see you soon!" << std::endl;
@@ -167,7 +172,12 @@ void letter_convos(std::vector<std::string> words) {
                     for (int e = 0; e < 26; e++) {
                         for (int f = 0; f < 26; f++) {
                             for (int g = 0; g < 26; g++) {
-                                if (std::adjacent_find(letters.begin(), letters.end()) != letters.end()) {
+                                if (a != b && a != c && a != d && a != e && a != f && a != g &&
+                                    b != c && b != d && b != e && b != f && b != g &&
+                                    c != d && c != e && c != f && c != g &&
+                                    d != e && d != f && d != g &&
+                                    e != f && e != g &&
+                                    f != g) {
                                     letters[0] = alphabet[a];
                                     letters[1] = alphabet[b];
                                     letters[2] = alphabet[c];
@@ -175,8 +185,9 @@ void letter_convos(std::vector<std::string> words) {
                                     letters[4] = alphabet[e];
                                     letters[5] = alphabet[f];
                                     letters[6] = alphabet[g];
+                                    
                                     std::vector<std::string> results = possible_results(words, letters);
-                                    if (results.size() >= 24) {
+                                    if (results.size() >= 16) {
                                         std::string set(7, 'x');
                                         set[0] = letters[0];
                                         set[1] = letters[1];
@@ -192,6 +203,7 @@ void letter_convos(std::vector<std::string> words) {
                         }
                     }
                 }
+                std::cout << "c: " << c << "/26" << std::endl;
             }
             std::cout << "b: " << b << "/26" << std::endl;
         }
