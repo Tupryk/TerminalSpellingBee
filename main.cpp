@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <math.h>
+#include <bitset>
 
 char alphabet[] = {'a', 'b', 'c', 'd',
                    'e', 'f', 'g', 'e',
@@ -15,6 +17,12 @@ char alphabet[] = {'a', 'b', 'c', 'd',
 int vocals[] = {0, 4, 8, 14, 20};
 
 void letter_convos(std::vector<std::string> words);
+std::vector<uint32_t> words_to_numbers(std::vector<std::string> words);
+
+struct letter_convo_t {
+    uint32_t must_have = 0;
+    uint32_t legal_letters = 0;
+};
 
 void print_chars(std::vector<char> letters) {
     for (int i = 0; i < letters.size(); i++) {
@@ -52,9 +60,9 @@ void printIntro(std::vector<char> letters)
 
     std::cout << "Welcome to Spelling-Bee!" << std::endl;
 
-    std::cout << "Here are your Letters: \n" << std::endl;
-
+    std::cout << "Here are your Letters: " << std::endl;
     print_chars(letters);
+    std::cout << std::endl;
 
     std::cout << "The first letter must always be on the word, " << std::endl;
     std::cout << "write -exit to exit or -giveup for the awnsers." << std::endl;
@@ -95,7 +103,7 @@ bool letters_allowed(std::string input, std::vector<char> letters)
 std::vector<std::string> possible_results(std::vector<std::string> words, std::vector<char> letters) {
     std::vector<std::string> results;
     for (std::string w : words) {
-        if (letters_allowed(w, letters))
+        if (letters_allowed(w, letters) && w.size() > 3)
             results.push_back(w);
     }
     return results;
@@ -108,7 +116,7 @@ int main ()
 
     std::vector<std::string> words = getFileWords();
 
-    letter_convos(words);
+    //letter_convos(words);
 
     std::vector<char> letters = getLetters();
 
@@ -122,6 +130,7 @@ int main ()
 
     while (true)
     {
+        std::cout << "________________________" << std::endl;
         std::string input;
         std::cin >> input;
 
@@ -147,6 +156,9 @@ int main ()
         else
             found_words.push_back(input);
 
+        if (found_words.size() == results.size())
+            std::cout << "You found all words!" << std::endl;
+
         if (found_words.size() > 0) {
             std::cout << "Your words(" << found_words.size() << "): " << std::endl;
             for (auto w : found_words)
@@ -155,63 +167,108 @@ int main ()
         std::cout << "Words left: " << results.size()-found_words.size() << std::endl;
         std::cout << "Your letters: " << std::endl;
         print_chars(letters);
+        std::cout << "________________________\n" << std::endl;
     }
 
     std::cout << "Thanks for playing, see you soon!" << std::endl;
     return 0;
 }
 
+std::vector<uint32_t> words_to_numbers(std::vector<std::string> words) {
+    std::vector<uint32_t> numbers;
+    for (std::string w : words) {
+        if (w.size() > 3) {
+            uint32_t num = 0;
+            for (std::string::size_type i = 0; i < w.size(); i++) {
+                num |= 1 << (int(w[i])-97);
+            }
+            numbers.push_back(num);
+        }
+    }
+    std::ofstream output_file("./words_as_numbers.txt");
+    std::ostream_iterator<uint32_t> output_iterator(output_file, "\n");
+    std::copy(numbers.begin(), numbers.end(), output_iterator);
+
+    return numbers;
+}
+
+bool bitwise_allowed_letters(uint32_t word, uint32_t illegal_letters, uint32_t must_have) {
+    return !(word & illegal_letters) && (word & must_have);
+}
+
+unsigned int bitwise_allowed_words_count(std::vector<uint32_t> words, uint32_t illegal_letters, uint32_t must_have) {
+    unsigned int sum = 0;
+    for (auto w : words) {
+        if (bitwise_allowed_letters(w, illegal_letters, must_have))
+            sum++;
+    }
+    return sum;
+}
+
+std::vector<std::string> bitmask_to_string(std::vector<letter_convo_t> letters_mask) {
+    std::vector<std::string> strings;
+    for (auto lm : letters_mask) {
+        std::string new_s = "+++++++";
+        unsigned int index = 1;
+        std::bitset<32> legal_set(lm.legal_letters);
+        std::bitset<32> must_set(lm.must_have);
+        for (int j = 0; j < 32; j++) {
+            if (legal_set[j] && !must_set[j]) {
+                new_s[index] = char(j+97);
+                index++;
+            } else if (legal_set[j]) {
+                new_s[0] = char(j+97);
+            }
+        }
+        strings.push_back(new_s);
+    }
+    return strings;
+}
+
 void letter_convos(std::vector<std::string> words) {
     std::cout << "Calculating best convos..." << std::endl;
-    std::vector<char> letters(7);
-    std::vector<std::string> best_convos;
-    for (int a = 0; a < 26; a++) {
-        for (int b = 0; b < 26; b++) {
-            for (int c = 0; c < 26; c++) {
-                for (int d = 0; d < 26; d++) {
-                    for (int e = 0; e < 26; e++) {
-                        for (int f = 0; f < 26; f++) {
-                            for (int g = 0; g < 26; g++) {
-                                if (a != b && a != c && a != d && a != e && a != f && a != g &&
-                                    b != c && b != d && b != e && b != f && b != g &&
-                                    c != d && c != e && c != f && c != g &&
-                                    d != e && d != f && d != g &&
-                                    e != f && e != g &&
-                                    f != g) {
-                                    letters[0] = alphabet[a];
-                                    letters[1] = alphabet[b];
-                                    letters[2] = alphabet[c];
-                                    letters[3] = alphabet[d];
-                                    letters[4] = alphabet[e];
-                                    letters[5] = alphabet[f];
-                                    letters[6] = alphabet[g];
-                                    
-                                    std::vector<std::string> results = possible_results(words, letters);
-                                    if (results.size() >= 16) {
-                                        std::string set(7, 'x');
-                                        set[0] = letters[0];
-                                        set[1] = letters[1];
-                                        set[2] = letters[2];
-                                        set[3] = letters[3];
-                                        set[4] = letters[4];
-                                        set[5] = letters[5];
-                                        set[6] = letters[6];
-                                        best_convos.push_back(set);
-                                    }
-                                }
-                            }
-                        }
-                    }
+
+    std::vector<uint32_t> words_as_numbers = words_to_numbers(words);
+
+    std::vector<letter_convo_t> best_convos;
+
+    uint32_t illegal_letters = 0;
+
+    std::vector<letter_convo_t> bitmasks;
+
+    uint32_t length = pow(2, 26);
+    for (uint32_t i = 0; i < length; i++) {
+        std::bitset<32> bitSet(i);
+        unsigned int count = bitSet.count();
+        if (count == 7) {
+            for (int j = 0; j < 32; j++) {
+                if (bitSet[j]) {
+                    letter_convo_t bitmask;
+                    bitmask.must_have |= 1 << j;
+                    bitmask.legal_letters = i;
+                    bitmasks.push_back(bitmask);
                 }
-                std::cout << "c: " << c << "/26" << std::endl;
             }
-            std::cout << "b: " << b << "/26" << std::endl;
         }
-        std::cout << "a: " << a << "/26" << std::endl;
+    }
+
+    static const unsigned int possible_letter_convos = bitmasks.size();
+    std::cout << "Possible letter convos: " << possible_letter_convos << std::endl;
+
+    for (auto bm : bitmasks)
+    {
+        illegal_letters = 0;
+        illegal_letters = ~(illegal_letters & 0);
+        illegal_letters = ~(bm.legal_letters & illegal_letters);
+        
+        if (bitwise_allowed_words_count(words_as_numbers, illegal_letters, bm.must_have) >= 7)
+            best_convos.push_back(bm);
     }
     std::cout << "Done." << std::endl;
 
+    std::vector<std::string> best_convos_s = bitmask_to_string(best_convos);
+
     std::ofstream output_file("./best_letter_convos.txt");
     std::ostream_iterator<std::string> output_iterator(output_file, "\n");
-    std::copy(best_convos.begin(), best_convos.end(), output_iterator);
+    std::copy(best_convos_s.begin(), best_convos_s.end(), output_iterator);
 }
