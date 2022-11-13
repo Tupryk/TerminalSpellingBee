@@ -45,15 +45,15 @@ void printIntro(std::vector<char> letters)
 {
     std::cout <<
     "+-------------------------------+\n"
-    "|                            /  |\n"
-    "|   S    Spelling - Bee     ()  |\n"
-    "|   p                           |\n"
-    "|   e       _\\\\//___            |\n"
-    "|   l     / U  | | | \\       B  |\n"
-    "|   l    |     | | |  |--    e  |\n"
-    "|   i     \\·___|_|_|_/       e  |\n"
-    "|   n                           |\n"
-    "|   g    Spelling - Bee         |\n"
+    "|                            \033[1;32m/\033[0m  |\n"
+    "|   \033[1;32mS\033[0m    \033[1;32mSpelling - Bee\033[0m     \033[1;32m()\033[0m  |\n"
+    "|   \033[1;32mp\033[0m                           |\n"
+    "|   \033[1;32me\033[0m       \033[1;33m_\033[0m\033[1;36m\\\\//\033[0m\033[1;33m___\033[0m            |\n"
+    "|   \033[1;32ml\033[0m     \033[1;33m/\033[0m U  | | | \033[1;33m\\\033[0m       \033[1;32mB\033[0m  |\n"
+    "|   \033[1;32ml\033[0m    \033[1;33m|\033[0m     | | |  \033[1;33m|\033[0m--    \033[1;32me\033[0m  |\n"
+    "|   \033[1;32mi\033[0m     \033[1;33m\\\033[0m·\033[1;33m___\033[0m|\033[1;33m_\033[0m|\033[1;33m_\033[0m|\033[1;33m_/\033[0m       \033[1;32me\033[0m  |\n"
+    "|   \033[1;32mn\033[0m                           |\n"
+    "|   \033[1;32mg\033[0m    \033[1;32mSpelling - Bee\033[0m         |\n"
     "|                               |\n"
     "+-------------------------------+\n"
     << std::endl;
@@ -160,11 +160,11 @@ int main ()
             std::cout << "You found all words!" << std::endl;
 
         if (found_words.size() > 0) {
-            std::cout << "Your words(" << found_words.size() << "): " << std::endl;
+            std::cout << "\nYour words(" << found_words.size() << "): " << std::endl;
             for (auto w : found_words)
                 std::cout << w << std::endl;
         }
-        std::cout << "Words left: " << results.size()-found_words.size() << std::endl;
+        std::cout << "\nWords left: " << results.size()-found_words.size() << std::endl;
         std::cout << "Your letters: " << std::endl;
         print_chars(letters);
         std::cout << "________________________\n" << std::endl;
