@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <math.h>
 #include <bitset>
+#include <iterator>
 
 char alphabet[] = {'a', 'b', 'c', 'd',
                    'e', 'f', 'g', 'e',
